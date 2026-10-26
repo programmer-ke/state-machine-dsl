@@ -1,0 +1,75 @@
+** 1. State Machine Compiler
+
+*** Concept
+
+A class body /declares/ states and transitions as plain data. A
+metaclass /compiles/ that declaration into an optimized state machine
+before the class object exists. The raw declarations are removed; only
+the runtime API remains.
+
+*** User-Facing API (the "source language")
+
+#+begin_src python
+class Door(metaclass=StateMachine):
+    # ── Declaration (compiled away at class creation) ──
+    states   = ['closed', 'open', 'locked']
+    initial  = 'closed'
+    transitions = {
+        'open':   {'closed': 'open',   'locked': 'open'},
+        'close':  {'open':   'closed', 'locked': 'closed'},
+        'lock':   {'closed': 'locked'},
+        'unlock': {'locked': 'closed'},
+    }
+
+    # ── Hooks (kept, not stripped) ──
+    def on_enter_open(self):
+        print('door is open')
+    def on_exit_closed(self):
+        print('leaving closed state')
+#+end_src
+
+*** Compilation Pipeline (what the metaclass does)
+
+| Phase | Action |
+|---|---|
+| 1. Parse | Extract =states=, =initial=, =transitions= from =ns= |
+| 2. Validate | =initial= ∈ =states=; all source/target states in =states=; no unreachable states; no duplicate events; =initial= is a valid entry point |
+| 3. Optimize | Flatten nested dicts into a single =dict[event, dict[source, target]]= table; pre-index valid events per state (=valid_events[state] → set of event names=) |
+| 4. Inject | Add =.state= property, =.transition(event)= method, =.fire(event)= alias, =.can(event)= → bool (guard without firing), =.reset()= |
+| 5. Strip | Delete =states=, =initial=, =transitions= from namespace so they don't appear on the class |
+
+*** MVP Features (Day 1–2)
+
+1. Flat states (no hierarchy)
+2. Named events with deterministic transitions
+3. =.transition(event)= — fire event, move state, run hooks
+4. =.can(event)= — query whether event is legal in current state
+5. =.state= — current state (read property)
+6. =.reset()= — return to initial state
+7. =on_enter_<state>=, =on_exit_<state>=, =on_transition_<event>= hook
+   auto-discovery
+8. Validation errors raised at /class creation time/ (not at runtime)
+
+*** Error Messages (compile-time)
+
+- =ValueError: initial state 'foo' not in states=
+- =ValueError: transition 'open' references unknown source state
+  'jar'=
+- =ValueError: state 'jammed' is unreachable from initial state
+  'closed'=
+
+*** Stretch Goals (post-MVP)
+
+- Guards: =transitions = {'open': {'closed': ('open', guard_fn)}}=
+- Hierarchical/substates
+- =to_dict()= / =from_dict()= for serialization
+- Graphviz DOT export (=.to_dot()=)
+- Async transitions
+
+*** Technical Notes
+
+- Runtime data stored in =__slots__= or class-level dict (immutable)
+- Hook lookup pre-computed at compile time: =_hooks[state] → (enter_fn, exit_fn)=
+- Thread safety out of scope for MVP
+
+---
