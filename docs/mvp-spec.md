@@ -180,8 +180,8 @@ events" rule is dropped for MVP.
   change.
 - `self.state` inside hooks:
   - `on_exit_*` sees the **old** state.
-  - `on_transition_*` sees the **new** state (state is updated before
-    hooks run). *(documented gotcha)*
+  - `on_transition_*` sees both the **old** and **new** state (state
+    is updated before hooks run). *(documented gotcha)*
   - `on_enter_*` sees the **new** state.
 
 ### FR-6 — Inheritance
@@ -241,7 +241,7 @@ and print hook call order. Serves as the end-to-end acceptance demo.
 | Lazy state seeding (no `__init__` magic) | **Subject to change.** Could be replaced by metaclass-wrapped `__init__` if edge cases emerge. |
 | Method-name collisions: injected API silently overwrites user's `transition` / `can` / `reset` / `state` | Silent data loss; strongly recommend flipping to a compile-time `ValueError: '<name>' is reserved` post-MVP. |
 | No hook signature validation at compile time | Wrong hook signature produces a `TypeError` at transition time. Consider `inspect.signature` check post-MVP. |
-| `on_transition_<event>` sees the *new* state | Subtle; must be prominently documented. |
+| `on_transition_<event>` sees both the *old* and  *new* state | Subtle; must be prominently documented. |
 | No inheritance / extension | Re-declaring machine in a subclass is undefined behavior. |
 | Hook-name typos that match nothing in the machine already raise (good), but valid-state typos in *transition targets* require the user to read the error message carefully. | Message quality matters. |
 
