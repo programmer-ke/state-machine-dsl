@@ -1,42 +1,5 @@
 # todo
 
-## US-1.3 — Move the Door by firing events
-
-
-> As a developer, I want to fire a named event with `.transition(event)` and have the machine move to the target state, so that I can drive the door through its lifecycle.
-
-### Scenario 1.3.1 — Fire one event and change state *(hardcoded single-entry transition table)*
-```gherkin
-Given a Door in state 'closed'
-When I fire event 'open'
-Then door.state == 'open'
-```
-
-### Scenario 1.3.2 — The full Door transition table works
-```gherkin
-Given a Door with transitions open/close/lock/unlock
-When I fire a legal sequence of events
-Then each event moves the door to the declared target state
-```
-
-### Scenario 1.3.3 — Unknown event is rejected
-```gherkin
-Given a Door in state 'closed'
-When I call transition('teleport')
-Then a ValueError "event 'teleport' is not a valid event" is raised
-And the state is unchanged
-```
-
-### Scenario 1.3.4 — Known event that is illegal right now is rejected
-```gherkin
-Given a Door in state 'open'
-When I call transition('open')
-Then a ValueError "event 'open' is not valid in state 'open'" is raised
-And the state is unchanged
-```
-
----
-
 ## US-1.4 — React to transitions with hooks
 **Status:** `todo**
 
@@ -115,27 +78,41 @@ Then the output shows the constructed Door, each fired event, the resulting stat
 
 # in progress
 
-## US-1.2 — Declare the machine as plain data
+## US-1.3 — Move the Door by firing events
 
-> As a developer, I want to declare `states`, `initial` and
-> `transitions` in a class body with `metaclass=StateMachine`, so that
-> I can describe any FSM as data instead of hand-written code.
+> As a developer, I want to fire a named event with
+> `.transition(event)` and have the machine move to the target state,
+> so that I can drive the door through its lifecycle.
 
-### Scenario 1.2.1 — A `StateMachine` metaclass compiles the declaration
+### Scenario 1.3.1 — Fire one event and change state *(hardcoded single-entry transition table)*
 ```gherkin
-Given the canonical Door class from the spec declared with metaclass=StateMachine
-When the class is created
-Then Door() constructs successfully and door.state == 'closed'
+Given a Door in state 'closed'
+When I fire event 'open'
+Then door.state == 'open'
 ```
 
-### Scenario 1.2.2 — The compiled graph is introspectable
+### Scenario 1.3.2 — The full Door transition table works
 ```gherkin
-Given a compiled Door class
-When I read Door._machine
-Then it exposes states, initial, transitions and valid_events describing the graph
+Given a Door with transitions open/close/lock/unlock
+When I fire a legal sequence of events
+Then each event moves the door to the declared target state
 ```
 
----
+### Scenario 1.3.3 — Unknown event is rejected
+```gherkin
+Given a Door in state 'closed'
+When I call transition('teleport')
+Then a ValueError "event 'teleport' is not a valid event" is raised
+And the state is unchanged
+```
+
+### Scenario 1.3.4 — Known event that is illegal right now is rejected
+```gherkin
+Given a Door in state 'open'
+When I call transition('open')
+Then a ValueError "event 'open' is not valid in state 'open'" is raised
+And the state is unchanged
+```
 
 # done
 
@@ -159,3 +136,25 @@ Given a Door declaration whose initial state is 'open'
 When I construct the machine
 Then the first read of .state == 'open'
 ```
+
+## US-1.2 — Declare the machine as plain data
+
+> As a developer, I want to declare `states`, `initial` and
+> `transitions` in a class body with `metaclass=StateMachine`, so that
+> I can describe any FSM as data instead of hand-written code.
+
+### Scenario 1.2.1 — A `StateMachine` metaclass compiles the declaration
+```gherkin
+Given the canonical Door class from the spec declared with metaclass=StateMachine
+When the class is created
+Then Door() constructs successfully and door.state == 'closed'
+```
+
+### Scenario 1.2.2 — The compiled graph is introspectable
+```gherkin
+Given a compiled Door class
+When I read Door._machine
+Then it exposes states, initial, transitions and valid_events describing the graph
+```
+
+---
