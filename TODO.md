@@ -1,28 +1,7 @@
 # todo
 
-## US-1.2 — Declare the machine as plain data
-**Status:** `todo`
-
-> As a developer, I want to declare `states`, `initial` and `transitions` in a class body with `metaclass=StateMachine`, so that I can describe any FSM as data instead of hand-written code.
-
-### Scenario 1.2.1 — A `StateMachine` metaclass compiles the declaration
-```gherkin
-Given the canonical Door class from the spec declared with metaclass=StateMachine
-When the class is created
-Then Door() constructs successfully and door.state == 'closed'
-```
-
-### Scenario 1.2.2 — The compiled graph is introspectable
-```gherkin
-Given a compiled Door class
-When I read Door._machine
-Then it exposes states, initial, transitions and valid_events describing the graph
-```
-
----
-
 ## US-1.3 — Move the Door by firing events
-**Status:** `todo`
+
 
 > As a developer, I want to fire a named event with `.transition(event)` and have the machine move to the target state, so that I can drive the door through its lifecycle.
 
@@ -94,7 +73,7 @@ Then on_exit_closed sees 'closed', on_transition_open sees the updated state, an
 ---
 
 ## US-1.5 — Catch declaration mistakes at class creation
-**Status:** `todo`
+
 
 > As a developer, I want typos in my declaration to raise `ValueError` when the class is created, so that I never ship a broken machine into application logic.
 > *(Shared with UC-4; only the checks a `Door` author meets are sliced here.)*
@@ -123,7 +102,7 @@ Then ValueError "hook 'on_enter_jammed' references unknown state 'jammed'" is ra
 ---
 
 ## US-1.6 — See the Door working end-to-end
-**Status:** `todo`
+
 
 > As a developer, I want `python statemachine.py` to walk the `Door` through its events and print hook calls, so that I have a runnable acceptance demo of the whole flow.
 
@@ -136,11 +115,31 @@ Then the output shows the constructed Door, each fired event, the resulting stat
 
 # in progress
 
+## US-1.2 — Declare the machine as plain data
+
+> As a developer, I want to declare `states`, `initial` and
+> `transitions` in a class body with `metaclass=StateMachine`, so that
+> I can describe any FSM as data instead of hand-written code.
+
+### Scenario 1.2.1 — A `StateMachine` metaclass compiles the declaration
+```gherkin
+Given the canonical Door class from the spec declared with metaclass=StateMachine
+When the class is created
+Then Door() constructs successfully and door.state == 'closed'
+```
+
+### Scenario 1.2.2 — The compiled graph is introspectable
+```gherkin
+Given a compiled Door class
+When I read Door._machine
+Then it exposes states, initial, transitions and valid_events describing the graph
+```
+
+---
 
 # done
 
 ## US-1.1 — See the Door's current state
-**Status:** `todo`
 
 > As a Python application developer, I want to instantiate a `Door`
 > and read its current state, so that I can model a door's condition
